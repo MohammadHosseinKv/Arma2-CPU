@@ -39,6 +39,4 @@
 !/docs/*.pdf
 !/.gitignore
 !/README.md
-!/.vscode/
-!/scripts/
 !/sim/
