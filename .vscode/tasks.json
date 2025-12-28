@@ -1,0 +1,38 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "ISim: run TB (cmd)",
+            "type": "shell",
+            "command": "${workspaceFolder}\\sim_isim.bat",
+            "args": [
+                "${fileBasenameNoExtension}"
+            ],
+            "options": {
+                "shell": {
+                    "executable": "C:\\Windows\\System32\\cmd.exe",
+                    "args": [
+                        "/c"
+                    ]
+                }
+            },
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "panel": "shared"
+            },
+            "group": "build"
+        },
+        {
+            "label": "ISE: synth+impl (build.bat)",
+            "type": "shell",
+            "command": "${workspaceFolder}\\build.bat",
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "panel": "new"
+            },
+            "group": "build"
+        }
+    ]
+}
