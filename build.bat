@@ -5,7 +5,7 @@ rem Save at repo root and run from repo root (or via VS Code task).
 setlocal enabledelayedexpansion
 
 rem === Edit these ===
-set TOP=Arma2_CPU
+set TOP=Top
 set PART=xc6slx9-2-tqg144
 set SRCDIR=src
 set SIMDIR=sim
