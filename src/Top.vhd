@@ -13,12 +13,25 @@ entity Top is
     IMMEDIATE_DATA_WIDTH : integer := C_IMMEDIATE_DATA_WIDTH;
     MEM_ADDR_WIDTH       : integer := C_MEM_ADDR_WIDTH;
     REG_DATA_WIDTH       : integer := C_REG_DATA_WIDTH;
-    LOAD_WIDTH           : integer := C_LOAD_WIDTH
+    LOAD_WIDTH           : integer := C_LOAD_WIDTH;
+    ALU_RESULT_WIDTH     : integer := C_ARITH_RESULT_WIDTH
   );
   port (
-    clk     : in  std_logic;
-    dbg_pc  : out std_logic_vector(PC_WIDTH - 1 downto 0);
-    dbg_acc : out std_logic_vector(REG_DATA_WIDTH - 1 downto 0)
+    clk                                : in  std_logic;
+    dbg_pc                             : out std_logic_vector(PC_WIDTH - 1 downto 0);
+    dbg_acc                            : out std_logic_vector(REG_DATA_WIDTH - 1 downto 0);
+    dbg_branch_en                      : out std_logic;
+    dbg_branch_offset                  : out std_logic_vector(IMMEDIATE_DATA_WIDTH - 1 downto 0);
+    dbg_imm                            : out std_logic_vector(IMMEDIATE_DATA_WIDTH - 1 downto 0);
+    dbg_reg1_data                      : out std_logic_vector(REG_DATA_WIDTH - 1 downto 0);
+    dbg_reg2_data                      : out std_logic_vector(REG_DATA_WIDTH - 1 downto 0);
+    dbg_reg_wr_data                    : out std_logic_vector(REG_DATA_WIDTH - 1 downto 0);
+    dbg_alu_result                     : out std_logic_vector(ALU_RESULT_WIDTH - 1 downto 0);
+    dbg_flag_z, dbg_flag_s, dbg_flag_c : out std_logic;
+    dbg_mem_data_in                    : out std_logic_vector(MEM_DATA_WIDTH - 1 downto 0);
+    dbg_mem_data_out                   : out std_logic_vector(MEM_DATA_WIDTH - 1 downto 0);
+    dbg_mem_addr                       : out std_logic_vector(MEM_ADDR_WIDTH - 1 downto 0);
+    dbg_reg_wr_addr                    : out std_logic_vector(REG_ADDR_WIDTH - 1 downto 0)
   );
 end entity;
 
@@ -26,7 +39,6 @@ architecture rtl of Top is
   component InstrROM is
     generic (
       INSTR_DATA_WIDTH : integer := C_INSTR_DATA_WIDTH;
-      CAPACITY         : integer := C_MEM_CAPACITY;
       ADDR_WIDTH       : integer := C_MEM_ADDR_WIDTH
     );
     port (
@@ -133,7 +145,7 @@ architecture rtl of Top is
   end component;
 
   -- Signals
-  signal pc_reg  : std_logic_vector(PC_WIDTH - 1 downto 0);
+  signal pc_reg  : std_logic_vector(PC_WIDTH - 1 downto 0) := (others => '0');
   signal pc_next : std_logic_vector(PC_WIDTH - 1 downto 0);
   signal instr   : std_logic_vector(INSTR_DATA_WIDTH - 1 downto 0);
 
@@ -163,8 +175,30 @@ architecture rtl of Top is
 
 begin
 
-  dbg_pc  <= pc_reg;
-  dbg_acc <= rf_acc_data;
+  dbg_pc            <= pc_reg;
+  dbg_acc           <= rf_acc_data;
+  dbg_branch_en     <= dec_branch_en;
+  dbg_branch_offset <= dec_branch_offset;
+  dbg_imm           <= dec_imm;
+  dbg_reg1_data     <= rf_reg1_data;
+  dbg_reg2_data     <= rf_reg2_data;
+  dbg_reg_wr_data   <= dec_reg_wr_data;
+  dbg_flag_z        <= alu_z;
+  dbg_flag_s        <= alu_s;
+  dbg_flag_c        <= alu_c;
+  dbg_alu_result    <= alu_result;
+  dbg_mem_data_in   <= dec_mem_wr_data;
+  dbg_mem_data_out  <= mem_data_out;
+  dbg_mem_addr      <= dec_mem_addr;
+  dbg_reg_wr_addr   <= dec_reg_wr_addr;
+
+  pc_unit_inst: PC_Unit
+    port map (
+      pc_current    => pc_reg,
+      branch_en     => dec_branch_en,
+      branch_offset => dec_branch_offset,
+      pc_next       => pc_next
+    );
 
   instrrom_inst: InstrROM
     port map (
@@ -230,17 +264,9 @@ begin
       data_out => mem_data_out
     );
 
-  pc_unit_inst: PC_Unit
-    port map (
-      pc_current    => pc_reg,
-      branch_en     => dec_branch_en,
-      branch_offset => dec_branch_offset,
-      pc_next       => pc_next
-    );
-
   seq_update: process (clk) is
   begin
-    if rising_edge(clk) then
+    if falling_edge(clk) then
       pc_reg <= pc_next;
     end if;
   end process;
