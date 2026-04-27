@@ -29,6 +29,8 @@
 /*
 /*/
 *.bak
+*.bat
+/scripts/
 
 # Keep sources
 !*.vhd
@@ -40,4 +42,4 @@
 !/.gitignore
 !/README.md
 !/sim/
-!*.bat
+!*.pdf
