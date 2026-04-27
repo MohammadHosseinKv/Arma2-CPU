@@ -52,7 +52,10 @@ The processor supports the following instructions (grouped by type).
 | `INC`       | -                            | `ACC ← ACC + 1`                           |
 | `CLR`       | -                            | `ACC ← 0`                                 |
 
-> **Note**: `SUB` uses two's complement addition: `ACC + (NOT R3) + 1`.  
+> [!NOTE]
+> 
+> `SUB` uses two's complement addition: `ACC + (NOT R3) + 1`.  
+>
 
 ### Memory
 
@@ -61,7 +64,10 @@ The processor supports the following instructions (grouped by type).
 | `LD`        | `R1, [R2, yy]`               | `R1 ← M[R2 + yy]` (yy: 8‑bit offset)      |
 | `ST`        | `[R2, yy], R1`               | `M[R2 + yy] ← R1`                         |
 
-> **Note**: `LD` and `ST` use base+offset addressing where the offset `yy` is an 8‑bit unsigned value.  
+> [!NOTE]
+>
+> `LD` and `ST` use base+offset addressing where the offset `yy` is an 8‑bit unsigned value.  
+>
 
 ### Branching
 
@@ -71,7 +77,10 @@ The processor supports the following instructions (grouped by type).
 | `BZ`        | `zz` (8‑bit relative)        | `if Z=1 then PC ← PC + zz`                |
 | `BNZ`       | `zz` (8‑bit relative)        | `if Z=0 then PC ← PC + zz`                |
 
-> **Note**: `BR`/`BZ`/`BNZ` offsets are signed values relative to the next instruction’s PC.
+> [!NOTE]
+>
+>`BR`/`BZ`/`BNZ` offsets are signed values relative to the next instruction’s PC.
+>
 
 ## Encode 
 
@@ -143,9 +152,12 @@ The processor supports the following instructions (grouped by type).
   </tbody>
 </table>
 
-> **Note**:  
-> - For `non memory-type instructions` bits 15..12: is `opcode`; bit 15 (`Key`) = `0`.  
-> - For `LD`/`ST` (`Memory-type instructions`), bit 15 (`Key`) = `1`. Bit 14 (`opcode`) selects load (`0`) or store (`1`).  
+> [!NOTE]
+>
+> For `non memory-type instructions` bits 15..12: is `opcode`; bit 15 (`Key`) = `0`.  
+>
+> For `LD`/`ST` (`Memory-type instructions`), bit 15 (`Key`) = `1`. Bit 14 (`opcode`) selects load (`0`) or store (`1`).  
+>
 
 ---
 
