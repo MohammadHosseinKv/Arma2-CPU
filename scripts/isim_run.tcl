@@ -1,2 +1,2 @@
 wave add /
-run 1000ns
+run 1500ns
