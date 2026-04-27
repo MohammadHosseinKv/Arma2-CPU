@@ -23,26 +23,23 @@ entity ALU is
 end entity;
 
 architecture behaviour of ALU is
-  signal imm_zero_extend : unsigned(RESULT_WIDTH - 1 downto 0);
-  signal acc_u, reg_u    : unsigned(RESULT_WIDTH - 1 downto 0);
 
 begin
 
-  imm_zero_extend <= unsigned((RESULT_WIDTH - 1 downto IMMEDIATE_DATA_WIDTH => '0') & imm);
-  acc_u           <= unsigned(acc);
-  reg_u           <= unsigned(reg);
+  arithmetic_execution: process (op, acc, reg, imm) is
+    variable temp            : unsigned(RESULT_WIDTH downto 0);
+    variable res             : unsigned(RESULT_WIDTH - 1 downto 0);
+    variable imm_zero_extend : unsigned(RESULT_WIDTH - 1 downto 0);
+    variable acc_u, reg_u    : unsigned(RESULT_WIDTH - 1 downto 0);
 
-  arithmetic_execution: process (op, acc_u, reg_u, imm_zero_extend) is
-    variable temp       : unsigned(RESULT_WIDTH downto 0);
-    variable res        : unsigned(RESULT_WIDTH - 1 downto 0);
-    variable zero_flag  : std_logic;
-    variable sign_flag  : std_logic;
-    variable carry_flag : std_logic;
+    variable zero_flag  : std_logic := '0';
+    variable sign_flag  : std_logic := '0';
+    variable carry_flag : std_logic := '0';
   begin
-    res := (others => '0');
-    flag_z <= '0';
-    flag_s <= '0';
-    flag_c <= '0';
+
+    imm_zero_extend := unsigned((RESULT_WIDTH - 1 downto IMMEDIATE_DATA_WIDTH => '0') & imm);
+    acc_u := unsigned(acc);
+    reg_u := unsigned(reg);
 
     case op is
       when OP_ADD =>
@@ -79,13 +76,14 @@ begin
       when OP_CLR =>
         res := (others => '0');
       when others =>
-        res := (others => '0');
+
     end case;
 
-    result <= std_logic_vector(res);
     flag_z <= zero_flag;
     flag_s <= sign_flag;
     flag_c <= carry_flag;
+    result <= std_logic_vector(res);
+
   end process;
 
 end architecture;
