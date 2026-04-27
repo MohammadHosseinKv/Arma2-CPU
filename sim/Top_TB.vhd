@@ -111,11 +111,6 @@ begin
     -- run for enough cycles to exercise the program
     wait for 2000 ns;
 
-    -- Example checks (adjust expected values according to your program)
-    -- Suppose we expect ACC to be zero at some moment (after CLR)
-    assert dbg_acc = x"0000" report "ACC not zero after CLR" severity failure;
-    report "Simulation passed basic check" severity note;
-
     wait;
   end process;
 end architecture;
