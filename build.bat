@@ -20,6 +20,7 @@ rem ensure working dir is script folder (repo root)
 pushd "%~dp0" >nul
 
 if not exist "%BUILD%" mkdir "%BUILD%"
+if not exist "%LOGSDIR%" mkdir "%LOGSDIR%"
 
 echo === Generating PRJ files with paths RELATIVE TO %BUILD% ===
 if exist "%BUILD%\xst.prj" del /f /q "%BUILD%\xst.prj" 2>nul
