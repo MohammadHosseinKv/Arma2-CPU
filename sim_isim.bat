@@ -4,7 +4,7 @@ setlocal enabledelayedexpansion
 
 rem ===== Defaults - can be overridden via args =====
 set XILINX=E:\XISE\14.7\ISE_DS
-set TB=
+set TB=Top_TB
 set BUILD=build
 set SIMDIR=sim
 set LOGSDIR=logs
@@ -13,7 +13,7 @@ set DO_GUI=1
 set DO_TCL=1
 rem If 1 -> try to launch ISim without a console window using PowerShell Start-Process
 rem If 0 -> use plain start (minimized) which may still show a taskbar window briefly.
-set HIDE_ISIM_CONSOLE=1
+set HIDE_ISIM_CONSOLE=0
 
 rem ==================================================
 
@@ -92,7 +92,7 @@ if defined XILINX (
 
 rem --- FUSE step (optional) ---
 if /I "%DO_FUSE%"=="1" (
-  echo --- Running fuse for testbench: %TB% ---
+  echo Running fuse for testbench: %TB% 
   "%FUSE_BIN%" -prj "%BUILD%\isim.prj" work.%TB% -o "%BUILD%\%TB%_isim.exe" > "%LOGSDIR%\fuse.log" 2>&1
   if errorlevel 1 (
     echo ERROR: fuse linking failed. See %LOGSDIR%\fuse.log
