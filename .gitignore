@@ -40,3 +40,4 @@
 !/.gitignore
 !/README.md
 !/sim/
+!*.bat
