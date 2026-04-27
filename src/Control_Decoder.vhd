@@ -39,26 +39,6 @@ architecture behaviour of Control_Decoder is
   signal Reg1             : std_logic_vector(REG_ADDR_WIDTH - 1 downto 0);
   signal imm_d            : std_logic_vector(IMMEDIATE_DATA_WIDTH - 1 downto 0);
 begin
-  --   [15:15] Key
-  --   If Key = 0
-  --      [14:11] Opcode
-  --      If OP_BR or OP_BZ or OP_BNZ or OP_ADDI (Immediate type)
-  --         [10:08] Zero
-  --         [7:0] 8-bit unsigned Immediate
-  --      else if (Two operand Register type)
-  --         [10:8] Reg1
-  --         [7:5] Reg2
-  --         [4:0] Zero
-  --      else (One operand Register type)
-  --         [10:8] Reg1
-  --         [7:0] Zero
-  --      end if;
-  --   else if Key = 1 (Memory Type (ST and LT))
-  --      [14:14] Opcode
-  --      [13:11] Reg1
-  --      [10:8] Reg2
-  --      [7:0] 8-bit unsigned Immediate
-  --   end if;
   opcode_key <= instr(INSTR_DATA_WIDTH - 1);
   -- opcode <= instr(14 downto 11);
   opcode           <= instr((INSTR_DATA_WIDTH - 1) - 1 downto (INSTR_DATA_WIDTH - 1) - (OPCODE_WIDTH - 1) - 1);
@@ -70,8 +50,8 @@ begin
   -- imm_d      <= instr(7 downto 0);
   -- Reg1        <= instr(10 downto 8);
   decode_proc: process (opcode, opcode_key, opcode_mem_instr, Reg1, imm_d, flag_z, reg1_data, reg2_data, mem_data) is
-    variable src : std_logic_vector(REG_ADDR_WIDTH - 1 downto 0);
-    variable dst : std_logic_vector(REG_ADDR_WIDTH - 1 downto 0);
+    variable base : std_logic_vector(REG_ADDR_WIDTH - 1 downto 0);
+    variable dst  : std_logic_vector(REG_ADDR_WIDTH - 1 downto 0);
   begin
     reg1_addr <= (others => '0');
     reg2_addr <= (others => '0');
@@ -109,6 +89,7 @@ begin
           reg_we <= '1';
         when OP_MOVI =>
           reg_wr_addr <= Reg1;
+          imm <= imm_d;
           if REG_DATA_WIDTH > IMMEDIATE_DATA_WIDTH then
             reg_wr_data(IMMEDIATE_DATA_WIDTH - 1 downto 0) <= imm_d;
             reg_wr_data(REG_DATA_WIDTH - 1 downto IMMEDIATE_DATA_WIDTH) <= (others => '0');
@@ -146,8 +127,8 @@ begin
           alu_op <= OP_CLR;
           acc_we <= '1';
         when OP_BR =>
-          branch_en <= '1';
           branch_offset <= imm_d;
+          branch_en <= '1';
         when OP_BZ =>
           branch_offset <= imm_d;
           if flag_z = '1' then
@@ -169,9 +150,9 @@ begin
       if opcode_mem_instr = '0' then -- LD R1 , [R2, yy]; R1 <- M[R2 + yy]
         dst := opcode(OPCODE_WIDTH - 1 - 1 downto 0);
         -- dst := instr(13 downto 11);
-        src := Reg1;
-        reg1_addr <= src;
-
+        base := Reg1;
+        reg1_addr <= base;
+        imm <= imm_d;
         -- if REG_DATA_WIDTH > IMMEDIATE_DATA_WIDTH then
         --   if REG_DATA_WIDTH > MEM_ADDR_WIDTH then
         mem_addr <= std_logic_vector(resize(unsigned(reg1_data) + unsigned((REG_DATA_WIDTH - 1 downto IMMEDIATE_DATA_WIDTH => '0') & imm_d), MEM_ADDR_WIDTH));
@@ -202,10 +183,11 @@ begin
         reg_wr_addr <= dst;
         reg_we <= '1';
       else -- ST [R2, yy], R1; M[R2 + yy] <- R1
-        dst := opcode(OPCODE_WIDTH - 1 - 1 downto 0);
-        -- dst := instr(13 downto 11);
-        src := Reg1;
-        reg1_addr <= src;
+        base := opcode(OPCODE_WIDTH - 1 - 1 downto 0);
+        -- base := instr(13 downto 11);
+        dst := Reg1;
+        reg1_addr <= base;
+        imm <= imm_d;
         mem_addr <= std_logic_vector(resize(unsigned(reg1_data) + unsigned((REG_DATA_WIDTH - 1 downto IMMEDIATE_DATA_WIDTH => '0') & imm_d), MEM_ADDR_WIDTH));
         reg2_addr <= dst;
         mem_wr_data <= reg2_data;
